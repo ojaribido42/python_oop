@@ -27,7 +27,7 @@ class LinearSearch(SortFile):
     """This class searches within the sorted words and prints out the three closest words to the inserted word """
 
     def __init__(self,word,file_name):
-        self.__search_word = word.lower()
+        self.__search_word = word
         self.__selected_list = []
         self.__all_words = {}
         self._file_name = file_name
@@ -42,23 +42,29 @@ class LinearSearch(SortFile):
         _text = self.clean_file(_text)
         _text = self.sort_file(_text)
         SEARCH = True
-        n = 10 # Number of selected list
+        N = 20 # Number of selected list
+        n = N
         r = 1 # For exact matches
+        cutoff = 0.0
         while (SEARCH == True):
             templist = diff.get_close_matches(self.__search_word,_text,n,r) # this method returns n words of less depending on the number of matches
             self.__selected_list.extend(list(set(templist))) # this line adds only a unique list \ to the list of selected words. Basically, only one word that exactly matches the string would be added to the list in the first loop
-            if len(self.__selected_list) > 9:
+            if len(self.__selected_list) > N-1 :
                 SEARCH == False
                 return self.__selected_list
             else:
+
                 # Delete the selected words from the list of words available
                 for selected_words in self.__selected_list:
                     if selected_words in _text:
                         _text.remove(selected_words)
-
-                n = 10 - len(self.__selected_list)
-                r -= 0.1 
-    
+                # Clean up the list and make room for closer words 
+                self.__selected_list = list(set(self.__selected_list))
+                n = N - len(self.__selected_list)
+                if r > cutoff + 0.1: # Ensure r does not go below 0.0
+                    r -= 0.1
+                else:
+                    return self.__selected_list
     
 
 class CalculateTime(object):
@@ -69,7 +75,7 @@ class CalculateTime(object):
 
 
 def main():
-    newText = LinearSearch("love","text")
+    newText = LinearSearch("inter","text")
     result = newText.search()
     print(result)
 
@@ -78,3 +84,4 @@ if __name__ == "__main__":
     main()        
 
  
+
